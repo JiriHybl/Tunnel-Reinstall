@@ -269,6 +269,74 @@ sudo cat /etc/mstunnel/env.sh
 - Monitor TLS cert expiration in Intune Health check.
 - Automate renewal with `certbot` and a deploy hook.
 
+#### 5.1.1 Manual TLS Certificate Renewal (Let's Encrypt + Microsoft Tunnel)
+
+Use this runbook when the Tunnel TLS cert is near expiration.
+
+1. Check the current cert managed by Certbot:
+
+```bash
+sudo openssl x509 \
+  -in /etc/letsencrypt/live/<TUNNEL_FQDN>/fullchain.pem \
+  -noout -subject -issuer -dates
+```
+
+2. Temporarily allow inbound `80/TCP` to the Tunnel VM (Azure NSG, and host firewall only if active) for HTTP-01 validation.
+
+3. Validate renewal flow safely:
+
+```bash
+sudo certbot renew --dry-run
+```
+
+4. Renew the production cert:
+
+```bash
+sudo certbot renew
+```
+
+5. Confirm the renewed cert dates:
+
+```bash
+sudo openssl x509 \
+  -in /etc/letsencrypt/live/<TUNNEL_FQDN>/fullchain.pem \
+  -noout -subject -issuer -dates
+```
+
+6. Back up current Tunnel cert/key:
+
+```bash
+sudo cp /etc/mstunnel/certs/site.crt /etc/mstunnel/certs/site.crt.$(date +%Y%m%d-%H%M%S).bak
+sudo cp /etc/mstunnel/private/site.key /etc/mstunnel/private/site.key.$(date +%Y%m%d-%H%M%S).bak
+```
+
+7. Copy renewed files into Tunnel paths:
+
+```bash
+sudo cp /etc/letsencrypt/live/<TUNNEL_FQDN>/fullchain.pem /etc/mstunnel/certs/site.crt
+sudo cp /etc/letsencrypt/live/<TUNNEL_FQDN>/privkey.pem /etc/mstunnel/private/site.key
+```
+
+8. Import cert and restart Tunnel:
+
+```bash
+sudo mst-cli import_cert
+sudo mst-cli server restart
+```
+
+9. Verify health and active cert:
+
+```bash
+sudo mst-cli server status
+sudo mst-cli agent status
+sudo openssl x509 -in /etc/mstunnel/certs/active.crt -noout -subject -issuer -dates
+```
+
+10. Remove temporary inbound `80/TCP` access after successful renewal.
+
+> **Important**
+> Keep private-key backups protected and remove obsolete copies according to your key-management policy.
+
 Example deploy hook:
 
 ```bash
