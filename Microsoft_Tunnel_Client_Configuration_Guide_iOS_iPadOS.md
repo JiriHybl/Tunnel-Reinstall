@@ -103,7 +103,7 @@ In the Intune admin center:
 | Connection name | Friendly user-facing name | `Contoso Secure Access` | Defined by the customer. This name is visible in the VPN connection information. Avoid internal-only codes. |
 | Microsoft Tunnel Site | Select the intended Site | `EU-Production-Tunnel` | Select from the picker. Find existing Sites under Tenant administration > Microsoft Tunnel Gateway > Sites. Don't type an arbitrary name. |
 | Server address/FQDN | Use the Site endpoint if the UI requests it | `tunnel.contoso.com` | Obtain from the selected Site. It must match the Subject Alternative Name of the Tunnel Gateway TLS certificate. |
-| Authentication | Use the Microsoft Tunnel Microsoft Entra flow presented by Intune | Microsoft Entra authentication | Microsoft Tunnel integrates with Microsoft Entra ID. A generic per-app VPN article might mention trusted/SCEP/PKCS certificates, but Microsoft Tunnel and ZPA integrate with Entra ID and don't require those authentication certificate profiles for that flow. |
+| Authentication | Use the Microsoft Tunnel Microsoft Entra flow presented by Intune | Microsoft Entra authentication | Microsoft Tunnel integrates with Microsoft Entra ID. Generic per-app VPN guidance might mention trusted/SCEP/PKCS client certificates, but Microsoft Tunnel itself uses Entra authentication for this flow. |
 | Proxy | Not configured unless explicitly required | Not configured | Configure only when the application/network design requires it and after validating proxy reachability and bypass requirements. |
 
 ## 7. Recommended design: per-app VPN

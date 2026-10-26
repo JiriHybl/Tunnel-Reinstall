@@ -1,11 +1,11 @@
 # Configure Microsoft Defender on Android as the Microsoft Tunnel Client
 
-This customer-ready guide explains how to deploy Microsoft Defender for Endpoint on Android Enterprise devices and configure it as the client application for Microsoft Tunnel. It includes the required Intune objects, recommended values, where each value comes from, example configurations, assignment guidance, and validation steps.
+This customer-ready guide explains how to deploy Microsoft Defender on enrolled Android Enterprise devices and configure it as the client application for Microsoft Tunnel. It includes required Intune objects, recommended values, where each value comes from, example configurations, assignment guidance, and validation steps.
 
 > [!IMPORTANT]
 > This guide covers **enrolled Android Enterprise devices using Microsoft Tunnel through Mobile Device Management (MDM)**. Microsoft Tunnel for Mobile Application Management (MAM) on unenrolled devices uses a different configuration model.
 
-## 1. Architecture and terminology
+## 1. Architecture
 
 On Android Enterprise, **Microsoft Defender is the Microsoft Tunnel client application**. Microsoft Intune deploys:
 
@@ -32,17 +32,24 @@ Internal corporate resources
 
 Microsoft Tunnel uses Microsoft Entra ID authentication and can be integrated with Conditional Access. Microsoft Tunnel supports per-app and device-wide connections, always-on VPN, split tunneling, and Strict Tunnel Mode on supported Android enrollment types.
 
-## 2. Supported Android Enterprise scenarios
+## 2. Scope and supported scenarios
 
-Use this guide for:
+Before creating policies, confirm that your target population is enrolled and managed through Intune MDM.
+
+| Scenario | Recommended technology | Key point |
+|---|---|---|
+| Device enrolled in Intune and organization manages the VPN profile | Microsoft Tunnel through MDM | Use this guide. Deploy Defender and an Intune Android Enterprise VPN profile. |
+| Device is not enrolled and only protected apps need Tunnel | Microsoft Tunnel for MAM | Uses a different architecture and policy model than this guide. |
+| Android Enterprise dedicated device | Not supported for Microsoft Tunnel connection type | Use another approved access design for this enrollment type. |
+| Enrolled device with mixed MDM Tunnel and MAM Tunnel design | Choose one model per device | Do not mix MDM Tunnel and MAM Tunnel policies on the same enrolled device. |
+
+Typical enrolled Android Enterprise scenarios for this guide include:
 
 - Personally owned devices with a work profile (BYOD)
 - Corporate-owned devices with a work profile (COPE)
 - Corporate-owned, fully managed user devices (COBO)
 
-Microsoft Tunnel is not supported on Android Enterprise dedicated devices for the Microsoft Tunnel connection type.
-
-## 3. Information to collect before configuration
+## 3. Information to collect
 
 Collect the following information before creating policies.
 
@@ -59,7 +66,7 @@ Collect the following information before creating policies.
 | Defender Android package ID | `com.microsoft.scmx` | The Managed Google Play listing for Microsoft Defender. This value is relevant when a device restrictions profile asks for a custom VPN client package ID. |
 | Private CA trust chain, if used | Root and issuing CA certificates | Obtain from the PKI team. Deploy with Intune Trusted certificate profiles before using a privately issued Tunnel TLS certificate. |
 
-## 4. Recommended policy design
+## 4. Recommended policy/object design
 
 Use separate policies so each layer has a clear purpose:
 
@@ -280,7 +287,7 @@ Use case: corporate-managed devices must send all network traffic through Tunnel
 
 Expected result: always-on without a defined app list provides Tunnel access for all device network traffic. Strict Tunnel Mode blocks network access when Tunnel drops.
 
-## 13. Validation procedure
+## 13. Validation
 
 ### Intune-side validation
 
@@ -305,7 +312,7 @@ Expected result: always-on without a defined app list provides Tunnel access for
 7. Test direct Internet/Microsoft 365 access according to the split-tunnel design.
 8. For Strict Tunnel Mode testing, use an approved maintenance test to verify expected fail-closed behavior.
 
-## 14. Common problems
+## 14. Troubleshooting
 
 | Symptom | What to verify |
 |---|---|
@@ -319,7 +326,7 @@ Expected result: always-on without a defined app list provides Tunnel access for
 | Per-app traffic doesn't use Tunnel | Confirm the exact managed app was added to the VPN profile and that the correct work/personal profile instance is being tested. |
 | Defender Web Protection and Tunnel behavior is unclear | Remember that Defender Web Protection uses a local loopback VPN, while Microsoft Tunnel provides corporate network access. Validate the supported combined configuration and avoid overlapping third-party always-on VPN policies. |
 
-## 15. Recommended baseline summary
+## 15. Recommended baseline
 
 | Area | Recommended production starting point |
 |---|---|
